@@ -5,7 +5,5 @@ void main() {
   runApp(MaterialApp(
     home: const Home(),
     theme: ThemeData.dark(),
-    debugShowCheckedModeBanner: false,
-    debugShowMaterialGrid: false,
   ));
 }

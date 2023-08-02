@@ -14,6 +14,7 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   final TextEditingController _taskController = TextEditingController();
   List<dynamic> _tasks = [];
+  Map<String, dynamic> _lastRemoveTask = Map();
 
   @override
   void initState() {
@@ -81,7 +82,7 @@ class _HomeState extends State<Home> {
                 itemCount: _tasks.length,
                 itemBuilder: (context, index) {
                   return Dismissible(
-                    key: Key('$index'),
+                    key: Key(DateTime.now().millisecondsSinceEpoch.toString()),
                     // direction: DismissDirection.endToStart,
                     secondaryBackground: Container(
                       color: Colors.red,
@@ -104,12 +105,32 @@ class _HomeState extends State<Home> {
 
                     onDismissed: (direction) {
                       if (direction == DismissDirection.endToStart) {
-                        print("endToStart");
-                      } else if (direction == DismissDirection.startToEnd) {
+                        _lastRemoveTask = _tasks[index];
                         setState(() {
                           _tasks.removeAt(index);
                         });
                         _saveArchive();
+
+                        //snackbar
+                        final snackbar = SnackBar(
+                            backgroundColor: Colors.green,
+                            duration: const Duration(seconds: 5),
+                            action: SnackBarAction(
+                                label: "Desfazer",
+                                onPressed: () {
+                                  setState(() {
+                                    _tasks.insert(index, _lastRemoveTask);
+                                  });
+
+                                  _saveArchive();
+                                }),
+                            content: const Text(
+                              "Tarefa Removida!",
+                              style: TextStyle(color: Colors.white),
+                            ));
+                        ScaffoldMessenger.of(context).showSnackBar(snackbar);
+                      } else if (direction == DismissDirection.startToEnd) {
+                        print("endToStart");
                       }
                     },
                     child: CheckboxListTile(
@@ -148,7 +169,7 @@ class _HomeState extends State<Home> {
                     title: const Text("Adicionar Tarefa"),
                     content: TextFormField(
                       controller: _taskController,
-                      decoration: InputDecoration(
+                      decoration: const InputDecoration(
                         label: Text('Digite aqui!'),
                       ),
                     ),
